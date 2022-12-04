@@ -1,11 +1,10 @@
-
-const express = require('express')
+const express = require('express');
 // const path = require("path");
-const app = express()
-const connectToDb = require("./db")
+const app = express();
+const connectToDb = require('./db');
 
 // to access envroment variable
-require("dotenv").config();
+require('dotenv').config();
 
 // convert request body to json other wise you will recive undefined
 app.use(express.json());
@@ -21,16 +20,14 @@ var options = {
   extensions: ['htm', 'html', 'css', 'js', 'ico', 'jpg', 'jpeg', 'png', 'svg'],
   index: ['index.html'],
   maxAge: '1m',
-  redirect: false
-}
+  redirect: false,
+};
 app.use(express.static('build', options));
 
-app.use("/auth", require("./routes/Auth"));
+app.use('/auth', require('./routes/Auth'));
 
-
-
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`React app listening at http://localhost:${port}`)
-})
+  console.log(`React app listening at http://localhost:${port}`);
+});
