@@ -25,9 +25,10 @@ var options = {
 app.use(express.static('build', options));
 
 app.use('/auth', require('./routes/Auth'));
+app.use("/post", require("./routes/Posts"))
 
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`React app listening at http://localhost:${port}`);
+  console.log(`React app Backend listening at http://localhost:${port}`);
 });

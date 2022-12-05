@@ -51,4 +51,44 @@ router.post("/signup",
         }
     })
 
+router.post("/login",
+    body("email").isEmail(),
+    body("password").isLength({ min: 5 }),
+    async (req, res) => {
+        try {
+            // check whether error exist in user sended data
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ success: false, errors: errors });
+            }
+
+            // check whether the user exist in database
+            const user = await User.findOne({ email: req.body.email });
+            if (!user) {
+                return res.status(400).json({ success: false, errors: "User with this email doesn't Exist" })
+            }
+
+            // match the password of user sended pass and database encrypted pass
+            const isMatch = bcrypt.compareSync(req.body.password, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ success: false, errors: "Invalid UserName or Password" });
+            }
+
+            // create jwt token
+            const data = {
+                user: {
+                    id: user.id
+                }
+            }
+            const token = jwt.sign(data, process.env.JWT_SECRET_KEY);
+
+            // send token back to client
+            return res.status(200).json({ success: true, authtoken: token });
+
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({ success: false, errors: "Internal Server Error" });
+        }
+    })
+
 module.exports = router;
