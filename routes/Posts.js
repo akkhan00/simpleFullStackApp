@@ -25,4 +25,50 @@ router.post("/uploadpost",
         }
     })
 
+router.delete("/deletepost/:id", verifyUser, async (req, res) => {
+    try {
+        // find the post with id
+        let post = await Post.findById(req.params.id)
+        if (!post) return res.status(404).json({ errors: "no post found" })
+
+        // match the user id and the post id . for security purpose
+        if (post.user.toString() !== req.user.id) return res.status(400).json({ errors: "Don't have permission" });
+
+        // delete the post from database
+        post = await Post.findByIdAndDelete(req.params.id);
+
+        // send response to client
+        res.status(200).json({ msg: "successfully deleted", post: post })
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Internal Server Error");
+    }
+})
+
+router.put("/updatepost/:id", verifyUser, async (req, res) => {
+    try {
+        // find the post with id
+        let post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ errors: "no post found" })
+
+        // match the user id and the post onwer id.
+        if (post.user.toString() !== req.user.id) return res.status(400).json({ errors: "Don't have permissions" })
+
+        // update the post in database
+        const newPost = {};
+        let { imgUrl, description } = req.body;
+        if (imgUrl) { newPost.imgUrl = imgUrl }
+        if (description) { newPost.description = description }
+        // now update it
+        post = await Post.findByIdAndUpdate(req.params.id, { $set: newPost }, { $new: true });
+
+        // send response back to client
+        res.status(200).json({ msg: "succesfuly updated", post: post })
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+
+
 module.exports = router;
